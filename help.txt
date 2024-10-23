@@ -1,0 +1,7 @@
+Quelques commandes utiles:
+
+'npx tsc': Compiler le ts en js
+'npm run build': Compiler le projet
+'npm run start': Executer le projet compilé
+'npm run dev': Compiler automatiquement en mode développement 
+'npm install {node}': Installer une dépendance
