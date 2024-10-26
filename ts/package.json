@@ -1,0 +1,18 @@
+{
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.11.0",
+    "@typescript-eslint/parser": "^8.11.0",
+    "eslint": "^9.13.0",
+    "typescript": "^5.6.3"
+  },
+  "name": "extractorcv",
+  "version": "1.0.0",
+  "description": "Projet TypeScript L3 Informatique",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
