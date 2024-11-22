@@ -4,8 +4,10 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "strict": true,                                      /* Enable all strict type-checking options. */
-    "outDir": "./js",
+    "outDir": "./dist",
     "rootDir": "./ts",
     "esModuleInterop": true
-  }
+  },
+  "include": ["ts/**/*"],
+  "exclude": ["node_modules"]
 }
