@@ -1,2 +1,5 @@
 *.js
 js/
+dist/
+data/
+node_modules/
