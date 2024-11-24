@@ -1,6 +1,7 @@
-//TODO Enregistrer le son du micro au lieu d'enregistrer le son directement
 document.addEventListener("DOMContentLoaded", () => {
 	var buttonMic: HTMLButtonElement = document.getElementById("mic") as HTMLButtonElement
+	var buttonStop: HTMLButtonElement = document.getElementById("stop") as HTMLButtonElement
+	buttonStop.hidden = true;
 
 	buttonMic.addEventListener("click", () => {
 		getUserMicrophone();
@@ -27,6 +28,11 @@ async function getUserMicrophone() {
 		}
 
 		mediaRecorder.onstop = () => {
+			const startButton = document.getElementById("mic") as HTMLButtonElement;
+			startButton.hidden = false;
+
+			const stopButton = document.getElementById("stop") as HTMLButtonElement;
+			stopButton.hidden = true;
 			// Créer un fichier audio à partir de l'enregistrement
 			const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
 			const audioUrl = URL.createObjectURL(audioBlob);
@@ -40,11 +46,17 @@ async function getUserMicrophone() {
 		};
 
 		mediaRecorder.onstart = () => {
-			const stopButton = document.getElementById("mic") as HTMLButtonElement;
-			stopButton.innerHTML = "Stop";
+			const startButton = document.getElementById("mic") as HTMLButtonElement;
+			startButton.hidden = true;
+
+			const stopButton = document.getElementById("stop") as HTMLButtonElement;
+			stopButton.hidden = false;
 
 			stopButton.addEventListener('click', () => {
 				mediaRecorder.stop();
+				mediaStr.getTracks().forEach((track) => {
+					track.stop();
+				});
 			});
 		}
 
