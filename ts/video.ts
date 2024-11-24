@@ -1,61 +1,56 @@
 //TODO Enregistrer le son du micro au lieu d'enregistrer le son directement
 document.addEventListener("DOMContentLoaded", () => {
-	var button: HTMLButtonElement = document.getElementById("extract") as HTMLButtonElement
+	var buttonMic: HTMLButtonElement = document.getElementById("mic") as HTMLButtonElement
 
-	const fileInput: HTMLInputElement = document.getElementById("fileInput") as HTMLInputElement;
-
-
-	button.addEventListener("click", () => {
-		const resultDiv: HTMLDivElement = document.getElementById("result") as HTMLDivElement;
-
-		const videoData = fileInput.files?.[0];
-		if (!videoData) {
-			resultDiv.innerHTML = "Aucun fichier séléctionné";
-		} else {
-			resultDiv.innerHTML = "Vidéo transferée: " + videoData.type;
-			extractAudio(videoData);
-		}
-	});
+	buttonMic.addEventListener("click", () => {
+		getUserMicrophone();
+	})
 });
 
-async function extractAudio(videoFile: Blob) {
-	const videoElement = document.createElement("video");
-	videoElement.src = URL.createObjectURL(videoFile);
-	videoElement.load();
+async function getUserMicrophone() {
 
-	await videoElement.play();
+	navigator.mediaDevices.getUserMedia({ audio: true, video: false }).then((mediaStr) => {
+		const mediaStream = mediaStr;
+		const audioCtx = new AudioContext();
 
-	const audioContext = new AudioContext();
-	const source = audioContext.createMediaElementSource(videoElement);
-	const destination = audioContext.createMediaStreamDestination();
+		const source = audioCtx.createMediaStreamSource(mediaStream);
+		const destination = audioCtx.createMediaStreamDestination();
 
-	source.connect(destination);
-	source.connect(audioContext.destination);
+		source.connect(destination);
+		source.connect(audioCtx.destination);
 
-	const mediaRecorder = new MediaRecorder(destination.stream);
-	const audioChunks: Blob[] = [];
+		const mediaRecorder = new MediaRecorder(destination.stream);
+		const audioChunks: Blob[] = [];
 
-	mediaRecorder.ondataavailable = (event) => {
-		audioChunks.push(event.data);
-	}
+		mediaRecorder.ondataavailable = (event) => {
+			audioChunks.push(event.data);
+		}
 
-	mediaRecorder.onstop = () => {
-		// Créer un fichier audio à partir de l'enregistrement
-		const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-		const audioUrl = URL.createObjectURL(audioBlob);
+		mediaRecorder.onstop = () => {
+			// Créer un fichier audio à partir de l'enregistrement
+			const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+			const audioUrl = URL.createObjectURL(audioBlob);
 
-		//Créez un lien pour télécharger l'audio
-		const downloadLink = document.createElement("a");
-		downloadLink.href = audioUrl;
-		downloadLink.download = "extracted-audio.wav";
-		downloadLink.textContent = "Télécharger l'audio";
-		document.body.appendChild(downloadLink);
-	};
-	// Démarrer l'enregistrement
-	mediaRecorder.start();
+			//Créez un lien pour télécharger l'audio
+			const downloadLink = document.createElement("a");
+			downloadLink.href = audioUrl;
+			downloadLink.download = "extracted-audio.wav";
+			downloadLink.textContent = "Télécharger l'audio";
+			document.body.appendChild(downloadLink);
+		};
 
-	// Arreter l'enregistrement quand il dépasse la longueur de la vidéo
-	setTimeout(() => {
-		mediaRecorder.stop();
-	}, videoElement.duration * 1000);
+		mediaRecorder.onstart = () => {
+			const stopButton = document.getElementById("mic") as HTMLButtonElement;
+			stopButton.innerHTML = "Stop";
+
+			stopButton.addEventListener('click', () => {
+				mediaRecorder.stop();
+			});
+		}
+
+		// Démarrer l'enregistrement
+		mediaRecorder.start();
+	}).catch((err) => {
+		console.log(err);
+	});
 }
