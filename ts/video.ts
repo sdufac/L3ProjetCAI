@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	buttonMic.addEventListener("click", () => {
 		getUserMicrophone();
+		getUserCamera();
 	})
 });
 
@@ -61,6 +62,26 @@ async function getUserMicrophone() {
 
 		// Démarrer l'enregistrement
 		mediaRecorder.start();
+	}).catch((err) => {
+		console.log(err);
+	});
+}
+
+async function getUserCamera() {
+	navigator.mediaDevices.getUserMedia({ audio: false, video: { width: 250 } }).then((mediaStr) => {
+		const videoElement = document.getElementById("video") as HTMLVideoElement;
+		const stopButton = document.getElementById("stop") as HTMLButtonElement;
+		videoElement.srcObject = mediaStr;
+		videoElement.onloadedmetadata = () => {
+			videoElement.play()
+
+			stopButton.onclick = () => {
+				videoElement.pause();
+				mediaStr.getTracks().forEach((track) => {
+					track.stop();
+				});
+			};
+		};
 	}).catch((err) => {
 		console.log(err);
 	});
