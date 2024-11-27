@@ -18,7 +18,6 @@ async function getUserMicrophone() {
 		const destination = audioCtx.createMediaStreamDestination();
 
 		source.connect(destination);
-		source.connect(audioCtx.destination);
 
 		const mediaRecorder = new MediaRecorder(destination.stream);
 		const audioChunks: Blob[] = [];
