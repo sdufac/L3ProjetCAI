@@ -1,0 +1,12 @@
+{
+    "type": "mysql",
+    "host": "localhost",
+    "port": 3306,
+    "username": "tcabakar",
+    "password": "raison",
+    "database": "cv_film",
+    "synchronize": true,
+    "logging": true,
+    "entities": ["JS/entities/*.js"]
+  }
+  

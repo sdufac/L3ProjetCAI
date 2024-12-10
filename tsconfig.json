@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    /* Langage et environnement */
+    "target": "es2017",                                  /* Recommandé pour TypeORM pour supporter async/await */
+    "module": "commonjs",                                /* Requis pour Node.js */
+    "lib": ["es6", "dom", "esnext"],                     /* Inclut ESNext pour les dernières fonctionnalités */
+    "strict": true,                                      /* Active toutes les options strictes */
+    "esModuleInterop": true,                             /* Assure une compatibilité correcte avec CommonJS */
+    "skipLibCheck": true,                                /* Ignore les vérifications des fichiers .d.ts */
+    "forceConsistentCasingInFileNames": true,            /* Cohérence dans les noms de fichiers */
+
+    /* Résolution des modules */
+    "moduleResolution": "node",                          /* Résolution des modules compatible Node.js */
+    "resolveJsonModule": true,                           /* Permet d'importer des fichiers JSON */
+    "baseUrl": "./",                                     /* Définit le répertoire de base */
+    "paths": {                                           /* Mappe des chemins personnalisés */
+      "*": ["node_modules/*"]
+    },
+
+    /* Emission */
+    "outDir": "./JS",                                    /* Répertoire des fichiers compilés */
+    "removeComments": true,                              /* Supprime les commentaires dans les fichiers compilés */
+    "sourceMap": true,                                   /* Génère des fichiers .map pour le débogage */
+
+    /* Type Checking */
+    "noImplicitAny": true,                               /* Désactive les types implicites 'any' */
+    "strictNullChecks": true,                            /* Vérifie null et undefined */
+    "noUnusedLocals": true,                              /* Signale les variables inutilisées */
+    "noUnusedParameters": true,                          /* Signale les paramètres inutilisés */
+    "noImplicitReturns": true,                           /* Vérifie que toutes les fonctions retournent correctement */
+    "noFallthroughCasesInSwitch": true,                  /* Vérifie les switch sans cas de fallback */
+    "emitDecoratorMetadata": true,                       /* Requis pour TypeORM */
+    "experimentalDecorators": true                       /* Requis pour TypeORM */
+  },
+  "include": ["**/*.ts"],                                /* Inclut tous les fichiers .ts */
+  "exclude": ["node_modules", "dist"]                    /* Exclut les répertoires inutiles */
+}
