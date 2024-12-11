@@ -111,6 +111,10 @@ async function uploadAudio(audioBlob: Blob) {
 
 		const data = await response.json();
 		console.log("Réponses", data);
+
+		const resultDiv = document.getElementById("result") as HTMLDivElement;
+		resultDiv.innerHTML = "Résultat de la transcription : <br>" + data.message;
+
 	} catch (error) {
 		console.error('Audio non envoyé', error);
 	}
