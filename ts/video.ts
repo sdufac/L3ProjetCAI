@@ -64,23 +64,13 @@ async function getUserMicrophone() {
 			buttonUpload.hidden = false;
 
 
-			// Créer un fichier audio à partir de l'enregistrement
 			const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
 			buttonUpload.addEventListener('click', () => {
 				uploadAudio(audioBlob);
 			});
-
-			//Créez un lien pour télécharger l'audio
-			const audioUrl = URL.createObjectURL(audioBlob);
-			const downloadLink = document.createElement("a");
-			downloadLink.href = audioUrl;
-			downloadLink.download = "extracted-audio.wav";
-			downloadLink.textContent = "Télécharger l'audio";
-			document.body.appendChild(downloadLink);
 		};
 
-		// Démarrer l'enregistrement
 		mediaRecorder.start();
 	}).catch((err) => {
 		console.log(err);
