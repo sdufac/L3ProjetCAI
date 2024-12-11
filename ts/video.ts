@@ -21,11 +21,18 @@ async function getUserMicrophone() {
 
 		source.connect(destination);
 
-		const mediaRecorder = new MediaRecorder(destination.stream);
+		const options = {
+			mimeType: 'audio/webm;codecs=opus',
+			audioBitsPerSecond: 16000 * 16,
+		};
+
+		const mediaRecorder = new MediaRecorder(destination.stream, options);
 		const audioChunks: Blob[] = [];
 
 		mediaRecorder.ondataavailable = (event) => {
-			audioChunks.push(event.data);
+			if (event.data.size > 0) {
+				audioChunks.push(event.data);
+			}
 		}
 
 		mediaRecorder.onstart = () => {
@@ -58,7 +65,7 @@ async function getUserMicrophone() {
 
 
 			// Créer un fichier audio à partir de l'enregistrement
-			const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+			const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
 
 			buttonUpload.addEventListener('click', () => {
 				uploadAudio(audioBlob);

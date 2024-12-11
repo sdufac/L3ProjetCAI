@@ -15,11 +15,10 @@ export async function convertToWav(audioBuffer: Buffer): Promise<void> {
 		readableStream.push(null);
 
 		ffmpeg(readableStream)
-			.inputFormat('s16le')
-			.audioCodec('pcm_s16le')
 			.audioChannels(1)
 			.audioFrequency(16000)
-			.format('wav')
+			.audioBitrate('16k')
+			.toFormat('wav')
 			.on('end', () => {
 				console.log('Fichier Wav généré avec succés');
 				resolve();
