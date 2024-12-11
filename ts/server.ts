@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import * as path from "path";
 import { convertToWav } from './audioprocess';
+import { speechToText } from './deepspeechprocess';
 
 const app = express();
 const port = 3000;
@@ -14,12 +15,19 @@ app.get('/', (req, res) => {
 
 app.post('/upload', (req: Request, res: Response) => {
 	const audioBuffer = req.body as Buffer;
-	convertToWav(audioBuffer).then(() => {
+	var outputPath: string = path.join(__dirname, '../dist/audioFile/testwav.wav')
+	convertToWav(audioBuffer, outputPath).then(() => {
 		console.log('Conversion terminée');
+		try {
+			const text = speechToText(outputPath);
+			console.log('resultat de la transcription :', text);
+			res.json({ message: text });
+		} catch (err) {
+			console.error('une erreur s\'est produite lors de la transcription');
+		};
 	}).catch((err) => {
 		console.error('Erreur lors de la convertion', err);
 	});
-	res.json({ message: 'Blob reçu' });
 });
 
 app.listen(port, () => {

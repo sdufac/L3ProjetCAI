@@ -5,7 +5,7 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import stream from 'stream';
 
-export async function convertToWav(audioBuffer: Buffer): Promise<void> {
+export async function convertToWav(audioBuffer: Buffer, outputPath: string): Promise<void> {
 	ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 
@@ -27,6 +27,6 @@ export async function convertToWav(audioBuffer: Buffer): Promise<void> {
 				console.error('Erreur lors de la convertion du fichier', err);
 				reject();
 			})
-			.save(path.join(__dirname, '../dist/audioFile/testwav.wav'));
+			.save(outputPath);
 	});
 }
