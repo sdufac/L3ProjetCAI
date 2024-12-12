@@ -2,11 +2,13 @@ import * as DeepSpeech from "deepspeech";
 import * as path from "path";
 import * as fs from "fs";
 
+export type WordTimeCode = {
+	word: string;
+	start_time: number;
+	end_time: number;
+};
 
-export function speechToText(audioPath: string): string {
-	const MODEL_PATH = path.join(__dirname, "dsModel", "deepspeech-0.9.3-models.pbmm");
-	const SCORER_PATH = path.join(__dirname, "dsModel", "deepspeech-0.9.3-models.scorer");
-
+export function speechToText(audioPath: string): WordTimeCode[] {
 	const FRENCH_MODEL_PATH = path.join(__dirname, "dsModel", "frenchTS", "output_graph.pbmm");
 	const FRENCH_SCORER_PATH = path.join(__dirname, "dsModel", "frenchTS", "kenlm.scorer");
 
@@ -15,7 +17,23 @@ export function speechToText(audioPath: string): string {
 
 	const audioData = fs.readFileSync(audioPath);
 
-	const transcription = model.stt(audioData);
+	const metadata = model.sttWithMetadata(audioData, 1);
 
-	return transcription;
+	const words = metadata.transcripts[0].tokens.map((token) => ({
+		word: token.text,
+		start_time: token.start_time,
+		end_time: token.start_time + token.timestep,
+	}));
+
+	return words;
+};
+
+export function wordsToString(words: WordTimeCode[]): string {
+	var result: string = '';
+
+	for (let i = 0; i < words.length; i++) {
+		result = result + words[i].word;
+	}
+
+	return result;
 }

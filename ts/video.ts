@@ -111,11 +111,10 @@ async function uploadAudio(audioBlob: Blob) {
 
 		const data = await response.json();
 		console.log("Réponses", data);
+		window.location.href = data.url;
 
-		const resultDiv = document.getElementById("result") as HTMLDivElement;
-		resultDiv.innerHTML = "Résultat de la transcription : <br>" + data.message;
 
 	} catch (error) {
-		console.error('Audio non envoyé', error);
+		console.error('Erreur lors du traitement de l\'audio', error);
 	}
 }
