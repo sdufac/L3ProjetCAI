@@ -1,7 +1,4 @@
-# ExtractorCV
-
-### Sujet
-Sujet 1
+# ExtractorCV (Sujet 1)
 
 ### Bînome
 * Simon DUFAC
