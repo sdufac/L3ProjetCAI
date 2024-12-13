@@ -27,7 +27,7 @@ app.post('/upload', (req: Request, res: Response) => {
 
 			console.log('resultat de la transcription :', text);
 
-			res.json({ url: '/upload/result' })
+			res.json({ result: text })
 		} catch (err) {
 			console.error('une erreur s\'est produite lors de la transcription');
 		};

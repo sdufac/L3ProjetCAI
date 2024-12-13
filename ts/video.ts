@@ -68,6 +68,8 @@ async function getUserMicrophone() {
 
 			buttonUpload.addEventListener('click', () => {
 				uploadAudio(audioBlob);
+				startButton.hidden = true;
+				buttonUpload.hidden = true;
 			});
 		};
 
@@ -101,6 +103,9 @@ async function getUserCamera() {
 
 async function uploadAudio(audioBlob: Blob) {
 	try {
+		const resultDiv: HTMLDivElement = document.getElementById("result") as HTMLDivElement;
+		resultDiv.innerHTML = "Chargement...";
+
 		const response = await fetch('http://localhost:3000/upload', {
 			method: 'POST',
 			headers: {
@@ -111,8 +116,14 @@ async function uploadAudio(audioBlob: Blob) {
 
 		const data = await response.json();
 		console.log("Réponses", data);
-		window.location.href = data.url;
 
+		resultDiv.innerHTML = "<h3>Résultat de la transcription</h3>" + data.result;
+
+		const reloadButton: HTMLButtonElement = document.getElementById("reloadButton") as HTMLButtonElement;
+		reloadButton.hidden = false;
+		reloadButton.onclick = () => {
+			location.reload();
+		};
 
 	} catch (error) {
 		console.error('Erreur lors du traitement de l\'audio', error);
