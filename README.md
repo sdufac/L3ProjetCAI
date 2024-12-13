@@ -5,7 +5,7 @@
 * Tahir Cherif ABAKAR
 
 ### Executer le projet
-* Installer node.js version 15 ou faire la commande node -v pour vérifier l'instalation
+* Installer node.js version 15 ou faire la commande ```node -v``` pour vérifier l'instalation
     * Si la version n'est pas la bonne on peut la télécharger avec nvm :```nvm install 15``` et ```nvm use 15```
 * Installer les dépendances avec ```npm install```
 * Compiler avec ```tsc```
