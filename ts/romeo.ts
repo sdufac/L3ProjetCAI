@@ -1,7 +1,6 @@
 import fetch from "node-fetch";
 
 export async function generateAccessToken(): Promise<string> {
-
 	const tokenUrl = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire";
 	const body = new URLSearchParams({
 		'grant_type': 'client_credentials',
@@ -25,5 +24,41 @@ export async function generateAccessToken(): Promise<string> {
 
 	const tokenData = await response.json() as { access_token: string };
 	return tokenData.access_token;
+}
 
+export async function sendToRomeo(token: string, text: string): Promise<any> {
+	try {
+		const url = "https://api.francetravail.io/partenaire/romeo/v2/predictionCompetences"
+
+		const response = await fetch(url, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${token}`,
+			},
+			body: JSON.stringify({
+				competences: [
+					{
+						intitule: text,
+						identifiant: "123"
+					}
+				],
+				options: {
+					nomAppelant: "ExtractorCV",
+					nbResultats: 10,
+					seuilScorePrediction: 0.5
+				}
+			})
+		});
+
+		if (!response.ok) {
+			const errorDetails = await response.text();
+			throw new Error(`Erreur lors de l'envoi à ROMEOv2 : ${errorDetails}`);
+		}
+
+		const data = await response.json();
+		return data;
+	} catch (err) {
+		console.error('Erreur lors de lenvoi  ROMEOv2: ' + err);
+	}
 }

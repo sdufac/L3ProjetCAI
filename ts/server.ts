@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import { convertToWav } from './audioprocess.js';
 import { speechToText, WordTimeCode, wordsToString } from './deepspeechprocess.js';
-import { generateAccessToken } from "./romeo.js";
+import { generateAccessToken, sendToRomeo } from "./romeo.js";
 
 const app = express();
 const port = 3000;
@@ -33,6 +33,9 @@ app.post('/upload', async (req: Request, res: Response) => {
 
 		const token = await generateAccessToken();
 		console.log("Token: " + token);
+
+		const competence = await sendToRomeo(token, text);
+		console.log("Competences: " + JSON.stringify(competence, null, 2));
 
 		res.json({ result: text });
 
