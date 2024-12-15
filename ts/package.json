@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Projet TypeScript L3 Informatique",
   "main": "index.js",
+  "type": "module",
   "author": "Simon",
   "license": "ISC",
   "devDependencies": {
@@ -19,7 +20,8 @@
     "deepspeech": "^0.9.3",
     "express": "^4.17.1",
     "fetch-blob": "^4.0.0",
-    "fluent-ffmpeg": "^2.1.3"
+    "fluent-ffmpeg": "^2.1.3",
+    "node-fetch": "^3.3.2"
   },
   "scripts": {
     "start": "node dist/server.js"

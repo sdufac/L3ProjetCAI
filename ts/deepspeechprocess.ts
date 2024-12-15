@@ -1,6 +1,7 @@
 import * as DeepSpeech from "deepspeech";
 import * as path from "path";
 import * as fs from "fs";
+import { __dirname } from "./server.js"
 
 export type WordTimeCode = {
 	word: string;

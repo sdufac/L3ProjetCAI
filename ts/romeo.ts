@@ -1,20 +1,29 @@
-export async function sendToRomeo(text: string) {
-	const apiUrl = 'https://api.francetravail.io/partenaire/romeo/v2/competence';
-	const token = 'e22fc70e2f278d63f4d0e535591e264a8e90434a0e2e47fcb0a17d0dad92baa3';
+import fetch from "node-fetch";
 
-	const response = await fetch(apiUrl, {
+export async function generateAccessToken(): Promise<string> {
+
+	const tokenUrl = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire";
+	const body = new URLSearchParams({
+		'grant_type': 'client_credentials',
+		'client_id': 'PAR_extractorcv_5f12c63968ebd554aee46c6817ad6c2dda646f268b5fe289f3575ee2a0d50845',
+		'client_secret': 'e22fc70e2f278d63f4d0e535591e264a8e90434a0e2e47fcb0a17d0dad92baa3',
+		'scope': 'api_romeov2'
+	})
+
+	const response = await fetch(tokenUrl, {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
-			Authorization: 'Bearer ${token}',
+			'Content-Type': 'application/x-www-form-urlencoded',
 		},
-		body: JSON.stringify({ text }),
+		body
 	});
 
 	if (!response.ok) {
-		throw new Error('Erreur lors de l\'envoi à l\'api : ${response.statusText}');
+		const error = await response.text();
+		throw new Error(`Erreur lors de la génération du token: ${response.statusText}. ${error}`);
 	}
 
-	const result = await response.json();
-	console.log("Compétences identifié :", result);
+	const tokenData = await response.json() as { access_token: string };
+	return tokenData.access_token;
+
 }

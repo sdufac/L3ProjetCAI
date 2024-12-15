@@ -117,7 +117,8 @@ async function uploadAudio(audioBlob: Blob) {
 		const data = await response.json();
 		console.log("Réponses", data);
 
-		resultDiv.innerHTML = "<h3>Résultat de la transcription</h3>" + data.result;
+		resultDiv.innerHTML = "<h3>Résultat de la transcription</h3>" + data.result
+			+ "<br> Compétences :";
 
 		const reloadButton: HTMLButtonElement = document.getElementById("reloadButton") as HTMLButtonElement;
 		reloadButton.hidden = false;
