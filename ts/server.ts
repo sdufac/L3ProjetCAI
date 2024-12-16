@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import path from "path";
 import { fileURLToPath } from 'url';
 import { convertToWav } from './audioprocess.js';
-import { speechToText, WordTimeCode, wordsToString } from './deepspeechprocess.js';
+import { speechToText, TextTimeCode, wordsToString } from './deepspeechprocess.js';
 import { generateAccessToken, sendToRomeo } from "./romeo.js";
 
 const app = express();
@@ -27,7 +27,7 @@ app.post('/upload', async (req: Request, res: Response) => {
 		await convertToWav(audioBuffer, outputPath);
 		console.log("Conversion terminée");
 
-		const words = speechToText(outputPath);
+		const words: TextTimeCode[] = speechToText(outputPath);
 		const text = wordsToString(words);
 		console.log('resultat de la transcription :', text);
 
