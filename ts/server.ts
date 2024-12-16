@@ -34,7 +34,7 @@ app.post('/upload', async (req: Request, res: Response) => {
 		const token = await generateAccessToken();
 		console.log("Token: " + token);
 
-		await sendAllPhrase(phrases);
+		const competenceJSONArray = await sendAllPhrase(phrases);
 
 		res.json({ result: text });
 

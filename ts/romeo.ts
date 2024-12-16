@@ -65,17 +65,21 @@ export async function sendToRomeo(token: string, text: string): Promise<any> {
 	}
 }
 
-export async function sendAllPhrase(phrases: TextTimeCode[]) {
+export async function sendAllPhrase(phrases: TextTimeCode[]): Promise<JSON[]> {
 	const token = await generateAccessToken();
 
 	let i: number = 0;
+	let competences: JSON[] = [];
 
 	const timer = setInterval(async function() {
 		const competence = await sendToRomeo(token, phrases[i].text);
+		competences.push(competence);
 		console.log("Competences: " + JSON.stringify(competence, null, 2));
-		i++
+		i++;
 		if (i === phrases.length) {
 			clearInterval(timer);
 		}
 	}, 1000);
+
+	return competences;
 }
