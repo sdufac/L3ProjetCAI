@@ -1,5 +1,7 @@
 import fetch from "node-fetch";
 
+import { TextTimeCode } from "./deepspeechprocess.js";
+
 export async function generateAccessToken(): Promise<string> {
 	const tokenUrl = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire";
 	const body = new URLSearchParams({
@@ -45,8 +47,8 @@ export async function sendToRomeo(token: string, text: string): Promise<any> {
 				],
 				options: {
 					nomAppelant: "ExtractorCV",
-					nbResultats: 10,
-					seuilScorePrediction: 0.5
+					nbResultats: 3,
+					seuilScorePrediction: 0.8
 				}
 			})
 		});
@@ -60,5 +62,17 @@ export async function sendToRomeo(token: string, text: string): Promise<any> {
 		return data;
 	} catch (err) {
 		console.error('Erreur lors de lenvoi  ROMEOv2: ' + err);
+	}
+}
+
+export async function sendAllPhrase(phrases: TextTimeCode[]) {
+	const token = await generateAccessToken();
+
+	for (let i = 0; i < phrases.length; i++) {
+		console.log("PHRASE A ENVOYER =" + phrases[i].text);
+		setTimeout(async () => {
+			const competence = await sendToRomeo(token, phrases[i].text);
+			console.log("Competences: " + JSON.stringify(competence, null, 2));
+		}, 1000, token, phrases[i].text);
 	}
 }

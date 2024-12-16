@@ -20,25 +20,46 @@ export function speechToText(audioPath: string): TextTimeCode[] {
 
 	const metadata = model.sttWithMetadata(audioData, 1);
 
-	let letters: TextTimeCode[] = metadata.transcripts[0].tokens.map((token) => ({
-		text: token.text,
-		start_time: token.start_time,
-		end_time: 0,
-	}));
+	const phrase: TextTimeCode[] = [];
+	const tokens = metadata.transcripts[0].tokens;
 
-	letters[0].text = letters[0].text.toUpperCase();
+	let currentPhrase: string = '';
+	let startTime: number = 0;
 
-	for (let i = 0; i < letters.length - 1; i++) {
-		console.log("MOT NUMERO " + i + " start_time=" + letters[i].start_time + " text=" + letters[i].text);
-		if (letters[i].text == ' ') {
-			if (letters[i + 1].start_time - letters[i - 1].start_time > 0.5) {
-				letters[i - 1].text = letters[i - 1].text + ".";
-				letters[i + 1].text = letters[i + 1].text.toUpperCase();
+	//Algo qui transforme le tableau de caractère en tableau de phrase en gardant les timestamp pour chaque phrase
+	tokens.forEach((token, index) => {
+		if (token.text === ' ') {
+			if (tokens[index + 1].start_time - tokens[index - 1].start_time > 0.5) {
+				currentPhrase += "." + token.text;
+				phrase.push({
+					text: currentPhrase,
+					start_time: startTime,
+					end_time: tokens[index - 1].start_time,
+				})
+				currentPhrase = '';
+			} else {
+				currentPhrase += token.text;
+			}
+		} else {
+			if (currentPhrase.length === 0) {
+				startTime = token.start_time;
+				currentPhrase += token.text.toUpperCase();
+			} else {
+				currentPhrase += token.text;
 			}
 		}
-	}
 
-	return letters;
+		if (index === tokens.length - 1) {
+			currentPhrase += ".";
+			phrase.push({
+				text: currentPhrase,
+				start_time: startTime,
+				end_time: token.start_time,
+			})
+		}
+	});
+
+	return phrase;
 };
 
 export function wordsToString(words: TextTimeCode[]): string {
