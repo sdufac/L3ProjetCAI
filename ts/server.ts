@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import path from "path";
 import multer from "multer";
 import { fileURLToPath } from 'url';
-import { convertToWav } from './audioprocess.js';
+import { convertToWav, convertToMp4 } from './audioprocess.js';
 import { speechToText, TextTimeCode, wordsToString } from './deepspeechprocess.js';
 import { generateAccessToken, sendAllPhrase } from "./romeo.js";
 
@@ -37,8 +37,11 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		const videoFile = files.video[0];
 
 		var outputPath: string = path.join(__dirname, '../dist/audioFile/testwav.wav')
+		var outputVideoPath: string = path.join(__dirname, '../dist/audioFile/testvideo.mp4')
 
 		await convertToWav(audioFile.buffer, outputPath);
+		await convertToMp4(videoFile.buffer, outputVideoPath);
+
 		console.log("Conversion terminée");
 
 		const phrases: TextTimeCode[] = speechToText(outputPath);

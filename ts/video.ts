@@ -82,8 +82,8 @@ async function captureAudio(): Promise<Blob> {
 
 async function captureVideo(): Promise<Blob> {
 	try {
-		const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
-		const videoTracks = mediaStream.getVideoTracks();
+		const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+		const videoTracks = mediaStream.getTracks();
 
 		if (!videoTracks.length) {
 			throw new Error("Impossible d'enregister la vidéo");
@@ -92,7 +92,7 @@ async function captureVideo(): Promise<Blob> {
 		const videoStream = new MediaStream(videoTracks);
 
 		const videoOptions = {
-			mimeType: 'video/webm',
+			mimeType: 'video/webm;codecs=vp8,opus',
 		}
 
 		const videoRecorder = new MediaRecorder(videoStream, videoOptions);
