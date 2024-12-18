@@ -15,30 +15,62 @@ export function speechToText(audioPath: string): TextTimeCode[] {
 
 	const model = new DeepSpeech.Model(FRENCH_MODEL_PATH);
 	model.enableExternalScorer(FRENCH_SCORER_PATH);
+	model.setBeamWidth(4096);
+	model.setScorerAlphaBeta(0.5919543900530122, 1.6082513974258137);
 
 	const audioData = fs.readFileSync(audioPath);
 
 	const metadata = model.sttWithMetadata(audioData, 1);
 
 	const phrase: TextTimeCode[] = [];
+	const letters: TextTimeCode[] = [];
 	const tokens = metadata.transcripts[0].tokens;
 
 	let currentPhrase: string = '';
 	let startTime: number = 0;
 
-	//Algo qui transforme le tableau de caractère en tableau de phrase en gardant les timestamp pour chaque phrase
+	//Copie du tableau de lettre fait par deepspeech pour pouvoir ajouster les valeurs de start_time
 	tokens.forEach((token, index) => {
+		if (index < tokens.length - 1) {
+			letters.push({
+				text: token.text,
+				start_time: token.start_time,
+				end_time: tokens[index + 1].start_time,
+			})
+		} else {
+			letters.push({
+				text: token.text,
+				start_time: token.start_time,
+				end_time: token.start_time,
+			})
+		}
+	});
+
+	//Ajustement des valeurs de start_time qui fonctionne mal en fonction des pauses
+	letters.forEach((letter, index) => {
+		if (index > 0 && letters[index - 1].text != ' ') {
+			if (letter.start_time - letters[index - 1].start_time > 0.5) {
+				letter.start_time = letters[index - 1].start_time + 0.1;
+			}
+		}
+	})
+
+	//Algo qui transforme le tableau de caractère en tableau de phrase en gardant les timestamp pour chaque phrase
+	letters.forEach((token, index) => {
+		console.log("LETTRE" + index + " text=" + token.text + " start_time=" + token.start_time);
 		if (token.text === ' ') {
-			if (tokens[index + 1].start_time - tokens[index - 1].start_time > 0.5) {
-				currentPhrase += "." + token.text;
-				phrase.push({
-					text: currentPhrase,
-					start_time: startTime,
-					end_time: tokens[index - 1].start_time,
-				})
-				currentPhrase = '';
-			} else {
-				currentPhrase += token.text;
+			if (index > 0) {
+				if (letters[index + 1].start_time - letters[index - 1].start_time > 0.5) {
+					currentPhrase += "." + token.text;
+					phrase.push({
+						text: currentPhrase,
+						start_time: startTime,
+						end_time: letters[index - 1].start_time,
+					})
+					currentPhrase = '';
+				} else {
+					currentPhrase += token.text;
+				}
 			}
 		} else {
 			if (currentPhrase.length === 0) {
@@ -49,13 +81,13 @@ export function speechToText(audioPath: string): TextTimeCode[] {
 			}
 		}
 
-		if (index === tokens.length - 1) {
+		if (index === letters.length - 1) {
 			currentPhrase += ".";
 			phrase.push({
 				text: currentPhrase,
 				start_time: startTime,
 				end_time: token.start_time,
-			})
+			});
 		}
 	});
 
