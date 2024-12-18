@@ -56,6 +56,9 @@ export function speechToText(audioPath: string): TextTimeCode[] {
 	})
 
 	//Algo qui transforme le tableau de caractère en tableau de phrase en gardant les timestamp pour chaque phrase
+	//et met également la ponctuation (point et majuscule) en fonction de l'espacement entre les mots.
+	//La ponctuation n'a pas pour but d'être exact mais seulement à séparer le texte en plusieurs morceaux pour pouvoir isoler
+	//les compétences
 	letters.forEach((token, index) => {
 		console.log("LETTRE" + index + " text=" + token.text + " start_time=" + token.start_time);
 		if (token.text === ' ') {

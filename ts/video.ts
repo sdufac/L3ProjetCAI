@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	buttonStop.hidden = true;
 	buttonMic.addEventListener("click", async () => {
 		try {
-			const [audioBlob, videoBlob] = await Promise.all([captureAudio(), captureVideo()]);
+			const [audioBlob, videoBlob] = await captureVideo();
 			upload(audioBlob, videoBlob);
 			buttonStop.hidden = true;
 		} catch (err) {
@@ -17,86 +17,32 @@ document.addEventListener("DOMContentLoaded", () => {
 	})
 });
 
-async function captureAudio(): Promise<Blob> {
-	try {
-		const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-
-		const audioTracks = mediaStream.getAudioTracks();
-
-		if (!audioTracks.length) {
-			throw new Error("Impossible d'enregister l'audio");
-		}
-
-		const audioStream = new MediaStream(audioTracks);
-
-		const audioOptions = {
-			mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 16000 * 16,
-		};
-
-		const audioRecorder = new MediaRecorder(audioStream, audioOptions);
-		const audioChunks: BlobPart[] = [];
-
-		audioRecorder.ondataavailable = (event) => {
-			if (event.data.size > 0) {
-				audioChunks.push(event.data);
-			}
-		};
-
-		let audioBlob: Blob = new Blob();
-
-
-		const recordStopped = new Promise<void>((resolve) => {
-			audioRecorder.onstop = () => {
-				audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-				resolve();
-			};
-		})
-
-		audioRecorder.onstart = () => {
-			const startButton = document.getElementById("mic") as HTMLButtonElement;
-			startButton.hidden = true;
-
-			const stopButton = document.getElementById("stop") as HTMLButtonElement;
-			stopButton.hidden = false;
-
-			var buttonUpload: HTMLButtonElement = document.getElementById("upload") as HTMLButtonElement;
-			buttonUpload.hidden = true;
-
-			stopButton.addEventListener('click', () => {
-				audioRecorder.stop();
-				mediaStream.getTracks().forEach((track) => {
-					track.stop();
-				});
-			});
-		};
-
-		audioRecorder.start();
-		await recordStopped;
-
-		return audioBlob;
-	} catch (err) {
-		console.error("Erreur lors de l'enregistrement audio:" + err);
-		throw err;
-	}
-}
-
-async function captureVideo(): Promise<Blob> {
+async function captureVideo(): Promise<[Blob, Blob]> {
 	try {
 		const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
 		const videoTracks = mediaStream.getTracks();
+		const audioTracks = mediaStream.getAudioTracks();
 
-		if (!videoTracks.length) {
+		if (!videoTracks.length || !audioTracks.length) {
 			throw new Error("Impossible d'enregister la vidéo");
 		}
 
 		const videoStream = new MediaStream(videoTracks);
+		const audioStream = new MediaStream(audioTracks);
 
 		const videoOptions = {
 			mimeType: 'video/webm;codecs=vp8,opus',
 		}
 
+		const audioOptions = {
+			mimeType: 'audio/webm;codecs=opus', audioBitsPerSecond: 16000 * 16,
+		};
+
 		const videoRecorder = new MediaRecorder(videoStream, videoOptions);
 		const videoChunks: BlobPart[] = [];
+
+		const audioRecorder = new MediaRecorder(audioStream, audioOptions);
+		const audioChunks: BlobPart[] = [];
 
 		videoRecorder.ondataavailable = (event) => {
 			if (event.data.size > 0) {
@@ -104,24 +50,35 @@ async function captureVideo(): Promise<Blob> {
 			}
 		};
 
-		let videoBlob: Blob = new Blob();
+		audioRecorder.ondataavailable = (event) => {
+			if (event.data.size > 0) {
+				audioChunks.push(event.data);
+			}
+		};
 
-		const recordStopped = new Promise<void>((resolve) => {
+		let videoBlob: Blob = new Blob();
+		let audioBlob: Blob = new Blob();
+
+		const videoRecordStopped = new Promise<void>((resolve) => {
 			videoRecorder.onstop = () => {
 				videoBlob = new Blob(videoChunks, { type: 'video/webm' });
 				resolve();
 			};
 		});
 
+		const audioRecordStopped = new Promise<void>((resolve) => {
+			audioRecorder.onstop = () => {
+				audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+				resolve();
+			}
+		});
+
 		videoRecorder.onstart = () => {
-			const stopButton = document.getElementById("stop") as HTMLButtonElement;
 			const startButton = document.getElementById("mic") as HTMLButtonElement;
 			startButton.hidden = true;
 
+			const stopButton = document.getElementById("stop") as HTMLButtonElement;
 			stopButton.hidden = false;
-
-			var buttonUpload: HTMLButtonElement = document.getElementById("upload") as HTMLButtonElement;
-			buttonUpload.hidden = true;
 
 			const videoElement = document.getElementById("video") as HTMLVideoElement;
 			videoElement.srcObject = mediaStream;
@@ -141,10 +98,26 @@ async function captureVideo(): Promise<Blob> {
 			});
 		};
 
-		videoRecorder.start();
+		audioRecorder.onstart = () => {
+			const startButton = document.getElementById("mic") as HTMLButtonElement;
+			startButton.hidden = true;
 
-		await recordStopped;
-		return videoBlob;
+			const stopButton = document.getElementById("stop") as HTMLButtonElement;
+			stopButton.hidden = false;
+
+			stopButton.addEventListener('click', () => {
+				audioRecorder.stop();
+				mediaStream.getTracks().forEach((track) => {
+					track.stop();
+				});
+			});
+		};
+
+		videoRecorder.start();
+		audioRecorder.start();
+
+		await Promise.all([videoRecordStopped, audioRecordStopped]);
+		return [audioBlob, videoBlob];
 	} catch (err) {
 		console.error("Erreur lors de l'enregistrement video:" + err);
 		throw err;
