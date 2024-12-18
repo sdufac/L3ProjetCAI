@@ -62,7 +62,7 @@ export function speechToText(audioPath: string): TextTimeCode[] {
 	letters.forEach((token, index) => {
 		console.log("LETTRE" + index + " text=" + token.text + " start_time=" + token.start_time);
 		if (token.text === ' ') {
-			if (index > 0) {
+			if (index > 0 && index < letters.length - 1) {
 				if (letters[index + 1].start_time - letters[index - 1].start_time > 0.5) {
 					currentPhrase += "." + token.text;
 					phrase.push({

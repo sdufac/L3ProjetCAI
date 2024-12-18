@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { convertToWav, convertToMp4 } from './audioprocess.js';
 import { speechToText, TextTimeCode, wordsToString } from './deepspeechprocess.js';
 import { generateAccessToken, sendAllPhrase } from "./romeo.js";
+import { Competence, CompetenceRome } from './romeo.js';
 
 const app = express();
 const port = 3000;
@@ -51,7 +52,16 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		const token = await generateAccessToken();
 		console.log("Token: " + token);
 
-		const competenceJSONArray = await sendAllPhrase(phrases);
+		const competences = await sendAllPhrase(phrases);
+		competences.forEach((competence) => {
+			if (competence.competencesRome.length > 0) {
+				competence.competencesRome.forEach((competenceRome) => {
+					console.log("intitule=" + competence.intitule + " competence=" + competenceRome.libelleCompetence);
+				});
+			} else {
+				console.log("Aucune compétences trouvé pour: " + competence.intitule);
+			}
+		});
 
 		res.json({ result: text });
 	} catch (err) {

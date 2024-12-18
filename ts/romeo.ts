@@ -2,6 +2,22 @@ import fetch from "node-fetch";
 
 import { TextTimeCode } from "./deepspeechprocess.js";
 
+export type CompetenceRome = {
+	codeCompetence: string;
+	libelleCompetence: string;
+	scorePrediction: number;
+	typeCompetence: string;
+};
+
+export type Competence = {
+	competencesRome: CompetenceRome[];
+	identifiant: string;
+	intitule: string;
+	uuidInference: string;
+}
+
+export type RomeoResponse = Competence[];
+
 export async function generateAccessToken(): Promise<string> {
 	const tokenUrl = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire";
 	const body = new URLSearchParams({
@@ -28,58 +44,51 @@ export async function generateAccessToken(): Promise<string> {
 	return tokenData.access_token;
 }
 
-export async function sendToRomeo(token: string, text: string): Promise<any> {
-	try {
-		const url = "https://api.francetravail.io/partenaire/romeo/v2/predictionCompetences"
+export async function sendToRomeo(token: string, text: string): Promise<RomeoResponse> {
+	const url = "https://api.francetravail.io/partenaire/romeo/v2/predictionCompetences"
 
-		const response = await fetch(url, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${token}`,
-			},
-			body: JSON.stringify({
-				competences: [
-					{
-						intitule: text,
-						identifiant: "123"
-					}
-				],
-				options: {
-					nomAppelant: "ExtractorCV",
-					nbResultats: 3,
-					seuilScorePrediction: 0.8
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${token}`,
+		},
+		body: JSON.stringify({
+			competences: [
+				{
+					intitule: text,
+					identifiant: "123"
 				}
-			})
-		});
+			],
+			options: {
+				nomAppelant: "ExtractorCV",
+				nbResultats: 3,
+				seuilScorePrediction: 0.8
+			}
+		})
+	});
 
-		if (!response.ok) {
-			const errorDetails = await response.text();
-			throw new Error(`Erreur lors de l'envoi à ROMEOv2 : ${errorDetails}`);
-		}
-
-		const data = await response.json();
-		return data;
-	} catch (err) {
-		console.error('Erreur lors de lenvoi  ROMEOv2: ' + err);
+	if (!response.ok) {
+		const errorDetails = await response.text();
+		throw new Error(`Erreur lors de l'envoi à ROMEOv2 : ${errorDetails}`);
 	}
+
+	const dataResponse = await response.json();
+	return dataResponse as RomeoResponse;
 }
 
-export async function sendAllPhrase(phrases: TextTimeCode[]): Promise<JSON[]> {
+export async function sendAllPhrase(phrases: TextTimeCode[]): Promise<Competence[]> {
 	const token = await generateAccessToken();
+	let competences: Competence[] = [];
 
-	let i: number = 0;
-	let competences: JSON[] = [];
+	for (let i = 0; i < phrases.length; i++) {
+		await new Promise(resolve => setTimeout(resolve, 1000));
 
-	const timer = setInterval(async function() {
-		const competence = await sendToRomeo(token, phrases[i].text);
+		const response = await sendToRomeo(token, phrases[i].text);
+		const competence = response[0];
+
 		competences.push(competence);
-		console.log("Competences: " + JSON.stringify(competence, null, 2));
-		i++;
-		if (i === phrases.length) {
-			clearInterval(timer);
-		}
-	}, 1000);
+	}
 
 	return competences;
 }
