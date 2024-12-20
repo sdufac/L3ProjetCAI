@@ -1,6 +1,9 @@
 *.js
 js/
-dist/
+dist/*
+!dist/html
 data/
 node_modules/
-dsModel/
+dsModel/*
+!dsModel/frenchTS
+frenchTS/*
