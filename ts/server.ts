@@ -37,16 +37,16 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		const audioFile = files.audio[0];
 		const videoFile = files.video[0];
 
-		var outputPath: string = path.join(__dirname, '../dist/audioFile/testwav.wav')
-		var outputVideoPath: string = path.join(__dirname, '../dist/audioFile/testvideo.mp4')
-		var outputVideoFinalPath: string = path.join(__dirname, '../dist/audioFile/video.mp4')
+		var outputAudioPath: string = path.join(__dirname, `../dist/output/wav/${Date.now()}.wav`)
+		var outputVideoPath: string = path.join(__dirname, `../dist/output/temp/${Date.now()}.mp4`)
+		var outputVideoFinalPath: string = path.join(__dirname, `../dist/output/final/${Date.now()}.mp4`)
 
-		await convertToWav(audioFile.buffer, outputPath);
+		await convertToWav(audioFile.buffer, outputAudioPath);
 		await convertToMp4(videoFile.buffer, outputVideoPath);
 
 		console.log("Conversion terminée");
 
-		const phrases: TextTimeCode[] = speechToText(outputPath);
+		const phrases: TextTimeCode[] = speechToText(outputAudioPath);
 		console.log("Tableau de phrase");
 		phrases.forEach((phrase) => {
 			console.log(`text=${phrase.text} start_time=${phrase.start_time} end_time=${phrase.end_time}`);

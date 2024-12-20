@@ -2,6 +2,10 @@
 js/
 dist/*
 !dist/html
-data/
+!dist/output/final/.gitkeep
+!dist/output/segment/.gitkeep
+!dist/output/temp/.gitkeep
+!dist/output/wav/.gitkeep
 node_modules/
 dsModel/*
+!dsModel/.gitkeep

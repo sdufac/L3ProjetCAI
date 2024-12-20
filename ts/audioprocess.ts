@@ -2,8 +2,8 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from '@ffmpeg-installer/ffmpeg';
 import stream from 'stream';
 import * as fs from 'fs';
-import { exec, ExecException } from 'child_process';
-import { Competence, CompetenceRome } from './romeo.js';
+import path from 'path';
+import { Competence } from './romeo.js';
 import { TextTimeCode } from './deepspeechprocess.js';
 
 
@@ -80,7 +80,7 @@ export function concatSegments(segments: string[], outputPath: string): Promise<
 		//Pour concatener des video avec ffmpeg il faut faire un fichier texte avec pour chaque
 		//file 'path vers la video'
 		const concatFileContent = segments.map(s => `file '${s}'`).join('\n')
-		const concatFilePath = 'segment.txt';
+		const concatFilePath = path.join(__dirname, "../dist/output/segment", `${Date.now()}.txt`);
 		fs.writeFileSync(concatFilePath, concatFileContent);
 
 		for (let i = 0; i < segments.length; i++) {
@@ -113,12 +113,12 @@ export async function createCompetenceVideo(competences: Competence[], phrases: 
 	}
 
 	const segmentsPaths: string[] = [];
+	const dateNow = Date.now();
 
 	try {
 		for (let i = 0; i < competences.length; i++) {
 			if (competences[i].competencesRome.length > 0 && phrases[i].text === competences[i].intitule) {
-				console.log("PHRASES=" + phrases[i].text + " COMPETENCES=" + competences[i].intitule);
-				const segmentPath = `segment${i}.mp4`;
+				const segmentPath = path.join(__dirname, "../dist/output/segment/", `${dateNow}${i}.mp4`);
 				await extractSegment(inputVideo, phrases[i].start_time, phrases[i].end_time, segmentPath);
 				segmentsPaths.push(segmentPath);
 			}

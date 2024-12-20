@@ -10,13 +10,13 @@ export type TextTimeCode = {
 };
 
 export function speechToText(audioPath: string): TextTimeCode[] {
-	const FRENCH_MODEL_PATH = path.join(__dirname, "dsModel", "frenchTS", "output_graph.pbmm");
-	const FRENCH_SCORER_PATH = path.join(__dirname, "dsModel", "frenchTS", "kenlm.scorer");
+	const FRENCH_MODEL_PATH = path.join(__dirname, "dsModel", "output_graph.pbmm");
+	const FRENCH_SCORER_PATH = path.join(__dirname, "dsModel", "kenlm.scorer");
 
 	const model = new DeepSpeech.Model(FRENCH_MODEL_PATH);
 	model.enableExternalScorer(FRENCH_SCORER_PATH);
 	model.setBeamWidth(4096);
-	model.setScorerAlphaBeta(0.5919543900530122, 1.6082513974258137);
+	model.setScorerAlphaBeta(0.85, 1.75);
 
 	const audioData = fs.readFileSync(audioPath);
 
