@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import path from 'path';
 import { Competence } from './romeo.js';
 import { TextTimeCode } from './deepspeechprocess.js';
+import { __dirname, __filename } from './server.js';
 
 
 export async function convertToWav(audioBuffer: Buffer, outputPath: string): Promise<void> {

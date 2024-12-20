@@ -6,6 +6,8 @@ import { convertToWav, convertToMp4, createCompetenceVideo } from './audioproces
 import { speechToText, TextTimeCode, wordsToString } from './deepspeechprocess.js';
 import { generateAccessToken, sendAllPhrase } from "./romeo.js";
 import { Competence, CompetenceRome } from './romeo.js';
+import { sendToBdd, insertCompetence, createTable } from './bdd.js'
+
 
 const app = express();
 const port = 3000;
@@ -37,9 +39,11 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		const audioFile = files.audio[0];
 		const videoFile = files.video[0];
 
-		var outputAudioPath: string = path.join(__dirname, `../dist/output/wav/${Date.now()}.wav`)
-		var outputVideoPath: string = path.join(__dirname, `../dist/output/temp/${Date.now()}.mp4`)
-		var outputVideoFinalPath: string = path.join(__dirname, `../dist/output/final/${Date.now()}.mp4`)
+		const outputName = Date.now();
+
+		var outputAudioPath: string = path.join(__dirname, `../dist/output/wav/${outputName}.wav`)
+		var outputVideoPath: string = path.join(__dirname, `../dist/output/temp/${outputName}.mp4`)
+		var outputVideoFinalPath: string = path.join(__dirname, `../dist/output/final/${outputName}.mp4`)
 
 		await convertToWav(audioFile.buffer, outputAudioPath);
 		await convertToMp4(videoFile.buffer, outputVideoPath);
@@ -58,18 +62,36 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		const token = await generateAccessToken();
 		console.log("Token: " + token);
 
+		let isThereCompetence: boolean = false;
+
 		const competences = await sendAllPhrase(phrases);
 		competences.forEach((competence) => {
 			if (competence.competencesRome.length > 0) {
 				competence.competencesRome.forEach((competenceRome) => {
+					isThereCompetence = true;
 					console.log("intitule=" + competence.intitule + " competence=" + competenceRome.libelleCompetence);
 				});
 			} else {
 				console.log("Aucune compétences trouvé pour: " + competence.intitule);
 			}
 		});
-		await createCompetenceVideo(competences, phrases, outputVideoPath, outputVideoFinalPath);
 
+		if (isThereCompetence) {
+			await createCompetenceVideo(competences, phrases, outputVideoPath, outputVideoFinalPath);
+			const dbPath = path.join(__dirname, '../dist/db', 'db.sqlite');
+
+			await createTable(dbPath);
+			const videoId = await sendToBdd(outputName + ".mp4", dbPath);
+			console.log("Video envoyé en BDD");
+			for (let i = 0; i < competences.length; i++) {
+				for (let j = 0; j < competences[i].competencesRome.length; j++) {
+					const intitule = competences[i].competencesRome[j].libelleCompetence;
+					const codeRome = competences[i].competencesRome[j].codeCompetence;
+					await insertCompetence(dbPath, intitule, codeRome, videoId);
+					console.log("Competence envoyé en BDD");
+				}
+			}
+		}
 		res.json({ result: text });
 	} catch (err) {
 		console.error("Une ereur s'est produite" + err);

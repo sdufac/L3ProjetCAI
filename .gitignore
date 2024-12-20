@@ -6,6 +6,7 @@ dist/*
 !dist/output/segment/.gitkeep
 !dist/output/temp/.gitkeep
 !dist/output/wav/.gitkeep
+!dist/bd
 node_modules/
 dsModel/*
 !dsModel/.gitkeep
