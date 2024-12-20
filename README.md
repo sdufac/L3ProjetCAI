@@ -5,39 +5,38 @@
 * Tahir Cherif ABAKAR
 
 ### Executer le projet
-* Installer node.js version 15 ou faire la commande ```node -v``` pour vérifier l'instalation
-    * Si la version n'est pas la bonne on peut la télécharger avec nvm :```nvm install 15``` et ```nvm use 15```
-* Installer les dépendances avec ```npm install```
-* Compiler avec ```tsc```
-* Démarrer le projet avec la commande ```node dist/server.js```
+* Installez node.js version 15 ou faire la commande ```node -v``` pour vérifier l'installation
+    * Si la version n'est pas correcte, on peut la télécharger avec nvm :```nvm install 15``` et ```nvm use 15```
+* Installez les dépendances avec ```npm install```
+* Compilez le projet avec ```tsc```
+* Démarrez le projet avec la commande ```node dist/server.js```
     * Le serveur écoute sur le port 3000
 
 # Détails du projet
 ### video.ts
 Seul script côté client
 * ```captureVideo()```
-    * Capture la vidéo et l'audio de l'utilisateur grâce à ```getUserMedia()``` et ```MediaRecorder```,
-    on créé un blob vidéo et audio destinée à être convertit en .mp4 plus tard et un blob audio seulement qui sera convertit
-    en .wav à destination de deepspeech.
+    * Capture la vidéo et l'audio de l'utilisateur grâce à ```getUserMedia()``` et ```MediaRecorder```.
+    * Crée un blob vidéo/audio destinée à être convertit en .mp4 plus tard et un blob audio uniqiuement qui sera convertit
+    en .wav pour DeepSpeech.
 * ```upload()```
-    * Fonction pour envoyer les 2 blobs créé précedement au serveur node qui seront récupéré sur la route /upload grâce à multer
-    qui est utilise pour récupéré directement les 2 blob distinct sans avoir à faire de traitement supplémentaire. La fonction
-    attend ensuite la réponse du serveur.
+    * Envoie les 2 blobs créés précédemment au serveur node via la route /upload gérée par Multer. Multer permet de récupérer
+    directement les deux blobs sans traitement supplémentaire. La fonction attend ensuite une réponse du serveur.
 
 ### server.ts
-Serveur node.js express on utilise seulement la route upload qui se charge d'appeler tout les fonction de traitement
-à la réception des blobs et renvoi au client le résultat de la transcription du CV de l'utilisateur et les phrases reconnue
+Serveur node.js express on utilise seulement la route upload qui appelle toutes les fonctions de traitement lors de la 
+réception des blobs et renvoi au client le résultat de la transcription du CV de l'utilisateur et les phrases reconnues
 comme des compétences ou des villes.
 
 ### audioprocess.ts
-Script qui contient toutes les fonctions de traitement audio et vidéo. Tout les traitement sont fait avec fluent-ffmpeg.
+Script contenant toutes les fonctions de traitement audio et vidéo. Tout les traitements sont fait avec fluent-ffmpeg.
 * ```convertToWav()```
-    * Convertit un buffer en fichier wav avec les paramètres requis pour deepspeech(une seule piste, 16khz de fréquence)
-    et l'enregistre dans le chemin préciser en paramètre.
+    * Convertit un buffer en fichier wav avec les paramètres requis pour DeepSpeech (une seule piste, 16kHz de fréquence)
+    et l'enregistre dans le chemin précisé en paramètre.
 * ```convertToMp4()```
     * Convertit un buffer en vidéo mp4 et l'enregistre et l'enregistre dans le chemin précisé en paramètre.
 * ```extractSegment()```
-    * A partir d'une video et de time stamp fournis en paramètre, la fonction découpe la vidéo et l'enregistre.
+    * A partir d'une video et de timestamps fournis en paramètre, la fonction découpe la vidéo et l'enregistre.
 * ```concatSegments()```
     * A partir d'un tableau de string qui représente les chemin des segment découpé grâce à ```extractSegment()```
     la fonction écrit d'abord dans un fichier text la liste de tout les chemins précédé de "file" car cela et demandé par
