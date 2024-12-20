@@ -7,7 +7,7 @@ dist/*
 !dist/output/temp/.gitkeep
 !dist/output/wav/.gitkeep
 !dist/db
-!dist/cities/cities.json
+!dist/cities
 node_modules/
 dsModel/*
 !dsModel/.gitkeep
