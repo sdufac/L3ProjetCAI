@@ -108,21 +108,15 @@ export function concatSegments(segments: string[], outputPath: string): Promise<
 	});
 }
 
-export async function createCompetenceVideo(competences: Competence[], phrases: TextTimeCode[], inputVideo: string, outputVideo: string): Promise<void> {
-	if (competences.length != phrases.length) {
-		throw new Error("Tableau de compétence et de phrases ne correspondent pas");
-	}
-
+export async function createCompetenceVideo(phrases: TextTimeCode[], inputVideo: string, outputVideo: string): Promise<void> {
 	const segmentsPaths: string[] = [];
 	const dateNow = Date.now();
 
 	try {
-		for (let i = 0; i < competences.length; i++) {
-			if (competences[i].competencesRome.length > 0 && phrases[i].text === competences[i].intitule) {
-				const segmentPath = path.join(__dirname, "../dist/output/segment/", `${dateNow}${i}.mp4`);
-				await extractSegment(inputVideo, phrases[i].start_time, phrases[i].end_time, segmentPath);
-				segmentsPaths.push(segmentPath);
-			}
+		for (let i = 0; i < phrases.length; i++) {
+			const segmentPath = path.join(__dirname, "../dist/output/segment/", `${dateNow}${i}.mp4`);
+			await extractSegment(inputVideo, phrases[i].start_time, phrases[i].end_time, segmentPath);
+			segmentsPaths.push(segmentPath);
 		}
 
 		if (segmentsPaths.length === 0) {

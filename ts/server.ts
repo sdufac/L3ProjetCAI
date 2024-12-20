@@ -6,7 +6,8 @@ import { convertToWav, convertToMp4, createCompetenceVideo } from './audioproces
 import { speechToText, TextTimeCode, wordsToString } from './deepspeechprocess.js';
 import { generateAccessToken, sendAllPhrase } from "./romeo.js";
 import { Competence, CompetenceRome } from './romeo.js';
-import { sendToBdd, insertCompetence, createTable } from './bdd.js'
+import { sendToBdd, insertCompetence, createTable } from './bdd.js';
+import { getCities } from './city.js';
 
 
 const app = express();
@@ -51,10 +52,7 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		console.log("Conversion terminée");
 
 		const phrases: TextTimeCode[] = speechToText(outputAudioPath);
-		console.log("Tableau de phrase");
-		phrases.forEach((phrase) => {
-			console.log(`text=${phrase.text} start_time=${phrase.start_time} end_time=${phrase.end_time}`);
-		});
+		const cities: TextTimeCode[] = getCities(phrases);
 
 		const text = wordsToString(phrases);
 		console.log('resultat de la transcription :', text);
@@ -62,22 +60,28 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		const token = await generateAccessToken();
 		console.log("Token: " + token);
 
-		let isThereCompetence: boolean = false;
-
 		const competences = await sendAllPhrase(phrases);
+		const phrasesWithComp: TextTimeCode[] = [];
+
 		competences.forEach((competence) => {
 			if (competence.competencesRome.length > 0) {
 				competence.competencesRome.forEach((competenceRome) => {
-					isThereCompetence = true;
 					console.log("intitule=" + competence.intitule + " competence=" + competenceRome.libelleCompetence);
+				});
+				phrases.forEach((phrase) => {
+					if (competence.intitule == phrase.text) {
+						phrasesWithComp.push(phrase);
+					}
 				});
 			} else {
 				console.log("Aucune compétences trouvé pour: " + competence.intitule);
 			}
 		});
 
-		if (isThereCompetence) {
-			await createCompetenceVideo(competences, phrases, outputVideoPath, outputVideoFinalPath);
+		const finalTab = phrasesWithComp.concat(cities);
+
+		if (finalTab.length > 0) {
+			await createCompetenceVideo(finalTab, outputVideoPath, outputVideoFinalPath);
 			const dbPath = path.join(__dirname, '../dist/db', 'db.sqlite');
 
 			await createTable(dbPath);

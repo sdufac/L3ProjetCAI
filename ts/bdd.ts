@@ -24,7 +24,6 @@ export function sendToBdd(videoName: string, dbPath: string): Promise<number> {
 
 export function insertCompetence(dbPath: string, intitule: string, codeRome: string, videoId: number): Promise<void> {
 	return new Promise((resolve, reject) => {
-		console.log("Chemin de la bdd utilisé: " + dbPath);
 		const db = new sqlite3.Database(dbPath);
 		const query = `INSERT INTO competence (intitule,codeRome,video_id) VALUES (?,?,?)`;
 
@@ -61,7 +60,6 @@ export function createTable(dbPath: string): Promise<void> {
 	`;
 
 	return new Promise((resolve, reject) => {
-		console.log("Chemin de la bdd utilisé: " + dbPath);
 		const db = new sqlite3.Database(dbPath);
 
 		db.exec(createTables, (err) => {
