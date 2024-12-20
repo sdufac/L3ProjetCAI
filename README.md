@@ -21,18 +21,20 @@ Seul script côté client
     en .wav à destination de deepspeech.
 * ```upload()```
     * Fonction pour envoyer les 2 blobs créé précedement au serveur node qui seront récupéré sur la route /upload grâce à multer
-    qui est utilise pour récupéré directement les 2 blob distinct sans avoir à faire de traitement supplémentaire.
+    qui est utilise pour récupéré directement les 2 blob distinct sans avoir à faire de traitement supplémentaire. La fonction
+    attend ensuite la réponse du serveur.
 
 ### server.ts
 Serveur node.js express on utilise seulement la route upload qui se charge d'appeler tout les fonction de traitement
-à la réception des blobs et renvoi seulement au client le résultat de la transcription du CV de l'utilisateur.
+à la réception des blobs et renvoi au client le résultat de la transcription du CV de l'utilisateur et les phrases reconnue
+comme des compétences ou des villes.
 
 ### audioprocess.ts
 Script qui contient toutes les fonctions de traitement audio et vidéo. Tout les traitement sont fait avec fluent-ffmpeg.
-* ```convertToWav```
+* ```convertToWav()```
     * Convertit un buffer en fichier wav avec les paramètres requis pour deepspeech(une seule piste, 16khz de fréquence)
     et l'enregistre dans le chemin préciser en paramètre.
-* ```convertToMp4```
+* ```convertToMp4()```
     * Convertit un buffer en vidéo mp4 et l'enregistre et l'enregistre dans le chemin précisé en paramètre.
 * ```extractSegment()```
     * A partir d'une video et de time stamp fournis en paramètre, la fonction découpe la vidéo et l'enregistre.

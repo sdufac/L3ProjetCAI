@@ -96,7 +96,14 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 				}
 			}
 		}
-		res.json({ result: text });
+
+		let compString = '';
+
+		finalTab.forEach((text) => {
+			compString = compString + text.text + ', ';
+		});
+
+		res.json({ result: text, competence: compString });
 	} catch (err) {
 		console.error("Une ereur s'est produite" + err);
 	}

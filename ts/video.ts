@@ -145,7 +145,7 @@ async function upload(audioBlob: Blob, videoBlob: Blob) {
 	console.log("Réponses", data);
 
 	resultDiv.innerHTML = "<h3>Résultat de la transcription</h3>" + data.result
-		+ "<br> Compétences :";
+		+ "<br> <h3>Compétences :<h3>" + data.competence;
 
 	const reloadButton: HTMLButtonElement = document.getElementById("reloadButton") as HTMLButtonElement;
 	reloadButton.hidden = false;
