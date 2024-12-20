@@ -5,5 +5,3 @@ dist/*
 data/
 node_modules/
 dsModel/*
-!dsModel/frenchTS
-frenchTS/*
