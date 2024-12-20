@@ -60,7 +60,7 @@ export function speechToText(audioPath: string): TextTimeCode[] {
 	//La ponctuation n'a pas pour but d'être exact mais seulement à séparer le texte en plusieurs morceaux pour pouvoir isoler
 	//les compétences
 	letters.forEach((token, index) => {
-		console.log("LETTRE" + index + " text=" + token.text + " start_time=" + token.start_time);
+		//console.log("LETTRE" + index + " text=" + token.text + " start_time=" + token.start_time);
 		if (token.text === ' ') {
 			if (index > 0 && index < letters.length - 1) {
 				if (letters[index + 1].start_time - letters[index - 1].start_time > 0.5) {

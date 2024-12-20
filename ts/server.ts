@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import path from "path";
 import multer from "multer";
 import { fileURLToPath } from 'url';
-import { convertToWav, convertToMp4 } from './audioprocess.js';
+import { convertToWav, convertToMp4, createCompetenceVideo } from './audioprocess.js';
 import { speechToText, TextTimeCode, wordsToString } from './deepspeechprocess.js';
 import { generateAccessToken, sendAllPhrase } from "./romeo.js";
 import { Competence, CompetenceRome } from './romeo.js';
@@ -39,6 +39,7 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 
 		var outputPath: string = path.join(__dirname, '../dist/audioFile/testwav.wav')
 		var outputVideoPath: string = path.join(__dirname, '../dist/audioFile/testvideo.mp4')
+		var outputVideoFinalPath: string = path.join(__dirname, '../dist/audioFile/video.mp4')
 
 		await convertToWav(audioFile.buffer, outputPath);
 		await convertToMp4(videoFile.buffer, outputVideoPath);
@@ -46,6 +47,11 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 		console.log("Conversion terminée");
 
 		const phrases: TextTimeCode[] = speechToText(outputPath);
+		console.log("Tableau de phrase");
+		phrases.forEach((phrase) => {
+			console.log(`text=${phrase.text} start_time=${phrase.start_time} end_time=${phrase.end_time}`);
+		});
+
 		const text = wordsToString(phrases);
 		console.log('resultat de la transcription :', text);
 
@@ -62,6 +68,7 @@ app.post('/upload', upload.fields([{ name: 'audio', maxCount: 1 }, { name: 'vide
 				console.log("Aucune compétences trouvé pour: " + competence.intitule);
 			}
 		});
+		await createCompetenceVideo(competences, phrases, outputVideoPath, outputVideoFinalPath);
 
 		res.json({ result: text });
 	} catch (err) {
